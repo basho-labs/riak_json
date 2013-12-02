@@ -23,11 +23,11 @@ make rel
 
 #### Configure
 
-Verify that Yokozuna and RiakJson are both turned `on` in `rel/riak/etc/riak.conf`
+Verify that Search and RiakJson are both turned `on` in `rel/riak/etc/riak.conf`
 
 ```
 ...
-yokozuna = on
+search = on
 ...
 riak_json = on
 ...
