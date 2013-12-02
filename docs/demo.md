@@ -1,10 +1,58 @@
-#RiakJson Demo
 
-###Architecture
+# RiakJson Demo
 
-![RiakJson Flow](http://f.cl.ly/items/410v0a0B3w2G1L354034/Image%202013.10.25%201%3A36%3A43%20PM.jpeg)
+Riak Json is a JSON based document and query interface built on Riak and indexed by Solr
 
-####Inferred Schema Example
+## Getting Started
+
+### Collections
+
+Collections are a group of documents, they map 1:1 with Riak buckets
+Choose a name for a collection
+
+```
+test
+```
+
+All of the Riak Json URIs are based on this collection
+
+```
+http://localhost:8098/document/collection/test
+```
+
+Collection Resources:
+
+```
+.../{document_key}
+.../schema
+.../query
+```
+
+### Documents
+Build a JSON document
+
+```
+{
+  "name": "Casey", 
+  "metric": 9000
+}
+```
+
+Choose a key
+
+```
+casey
+```
+
+Put the document in the collection
+
+```
+curl -v -XPUT -H 'Content-Type: application/json' \
+    "http://localhost:8098/document/collection/demo_collection/casey" -d \
+    '{"name": "Casey", "metric": 9000}'
+```
+
+Without an explicit schema, this results in an inferred schema
 
 ```
     [
@@ -13,245 +61,293 @@
         "type": "string"
       },
       {
-        "name": "full_name", 
-        "type": "text"
-      },
-      {
         "name": "metric", 
         "type": "number"
       }
     ]
 ```
 
-This can be found at [Link](http://localhost:8098/document/collection/names/schema/the_demoDefaultSchema)
+Load a few more documents into the collection so they can be queried
 
 ```
-http://localhost:8098/document/collection/names/schema/the_demoDefaultSchema
-```
-
-This maps directly to an XML generated schema that Yokozuna understands, found here [Link](http://localhost:8098/yz/schema/the_demoDefaultSchema)
-
-```
-http://localhost:8098/yz/schema/the_demoDefaultSchema
-```
-
-####Riak Integration Strategy: Proxy
-
-A set of proxy classes are used to make calls to Riak. This was decided because we knew initially that we wanted to quickly make a proof of concept to show off functionality, but knew it would take time to actually decide and implement the final integration with Yokozuna.
-
-The proxies allow us to easily swap out different ways of interacting with Yokozuna while keeping the majority of the logic the same.
-
-#####Previously
-
-When RiakJson development started, Protobuf support was not available in the riak-erlang-client for yokozuna calls, so the first several integration points were implemented as erlang generated HTTP queries to Riak.
-
-#####Current
-
-When Protobuf support was added to Yokozuna and the riak-erlang-client, we began writing new proxies that deal only with the simpler and more readable riak-erlang-client calls.
-
-#####Future Plans
-
-The end goal is to make RiakJson an app that sits directly on top of or beside Riak, much like Yokozuna does. Some work has started on this approach, but it is not finished yet.
-
-###Currently supported endpoints
-
-####Documents
-
-#####Store documents
-
-```
-COL=the_demo4
-
 curl -v -XPUT -H 'Content-Type: application/json' \
-    "http://localhost:8098/document/collection/$COL/casey" -d \
-    '{"name": "Casey", "metric": 9000}'
-    
-curl -v -XPUT -H 'Content-Type: application/json' \
-    "http://localhost:8098/document/collection/$COL/drew" -d \
+    "http://localhost:8098/document/collection/demo_collection/drew" -d \
     '{"name": "Drew", "metric": 1}'
-
 curl -v -XPUT -H 'Content-Type: application/json' \
-    "http://localhost:8098/document/collection/$COL/dan" -d \
+    "http://localhost:8098/document/collection/demo_collection/dan" -d \
     '{"name": "Dan", "metric": 2}'
-
 curl -v -XPUT -H 'Content-Type: application/json' \
-    "http://localhost:8098/document/collection/$COL/felix" -d \
+    "http://localhost:8098/document/collection/demo_collection/felix" -d \
     '{"name": "Felix", "metric": 3}'
+```
+
+Load even more documents into the collection for more compelling reuslts
+
+```
+curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Petunia -d "{\"name\": \"Petunia\", \"metric\": 31}"
+curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Max -d "{\"name\": \"Max\", \"metric\": 2}"
+curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Carrie -d "{\"name\": \"Carrie\", \"metric\": 28}"
+curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Wilt -d "{\"name\": \"Wilt\", \"metric\": 28}"
+curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Roberta -d "{\"name\": \"Roberta\", \"metric\": 2}"
+curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Rowena -d "{\"name\": \"Rowena\", \"metric\": 2}"
+curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Robert -d "{\"name\": \"Robert\", \"metric\": 40}"
+```
+
+Get a document by key
+
+```
+curl -v -XPUT -H 'Content-Type: application/json' \
+    "http://localhost:8098/document/collection/demo_collection/deleteme" -d \
+    '{"name": "DeleteMe", "metric": 1}'
     
-```
-
-#####Get a document by key
-
-```
 curl -v -XGET -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/felix" \
+    "http://localhost:8098/document/collection/demo_collection/deleteme" \
     | python -mjson.tool
 
 ```
 
-#####Delete a document
+Delete a document
 
 ```
 curl -v -XDELETE -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/felix"
-
-#put it back
-curl -v -XPUT -H 'Content-Type: application/json' \
-    "http://localhost:8098/document/collection/$COL/felix" -d \
-    '{"name": "Felix", "metric": 3}'
+    "http://localhost:8098/document/collection/demo_collection/deleteme"
 ```
 
-####Querying
+### Queries (One)
 
-#####Get one document back
+Find one document with `name` equal to "Drew"
 
 ```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/one" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/one" -d \
     '{"name": "Drew"}' \
     | python -mjson.tool
+```
 
+Find one document with `name` that matches a regular expression
+
+```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/one" -d \
-    '{"name": {"$regex": "/.*/"}}' \
+    "http://localhost:8098/document/collection/demo_collection/query/one" -d \
+    '{"name": {"$regex": "/C.*/"}}' \
     | python -mjson.tool
 ```
 
-#####Get multiple documents back that start with "D"
+This is an example of an `operator`, `{"$regex": "/C.*/"}` is a query for any one document with a name that starts with "C"
+
+### Queries (All)
+
+Find all documents with `name` that matches a regular expression
 
 ```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"name": {"$regex": "/D.*/"}}' \
     | python -mjson.tool
 ```
 
-#####More operations
+Here, `{"$regex": "/D.*/"}}` is a query for all documents with a name that starts with "D"
+
+#### Comparison Operators
+
+Find all documents with `metric` less than or equal to 5
+
 ```
-# Less than or equal
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"metric": {"$lte": 5}}' \
     | python -mjson.tool
+```
 
-# Greater than
+Find all documents with `metric` greater than 2
+
+```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"metric": {"$gt": 2}}' \
     | python -mjson.tool
+```
 
-# Boolean OR
+#### Boolean Operators
+
+Find all documents with `name` that begins with "D" or "F"
+
+```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"$or": [{"name": {"$regex": "/D.*/"}},{"name": {"$regex": "/F.*/"}}]}' \
     | python -mjson.tool
+```
 
-# Pagination
+#### Pagination
+
+Use the `$per_page` parameter to specify how many documents to return in a page of results
+
+```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"name": {"$regex": "/.*/"}, "$per_page": 1}' \
     | python -mjson.tool
+```
 
+Use the `$page` parameter to specify which result page to show
+
+```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"name": {"$regex": "/.*/"}, "$per_page": 1, "$page": 2}' \
     | python -mjson.tool
+```
 
-# Sorting
-# Descending
+#### Sorting
+
+Use the `$sort` parameter, a field name, and a -1 value to return the results in descending order based on the value of that field
+
+```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"name": {"$regex": "/.*/"}, "$sort": {"metric": -1}}' \
     | python -mjson.tool
+```
 
-#Ascending
+Change the value to 1 to return the results in ascending order
+
+```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
+    "http://localhost:8098/document/collection/demo_collection/query/all" -d \
     '{"name": {"$regex": "/.*/"}, "$sort": {"metric": 1}}' \
     | python -mjson.tool
 ```
 
-#### Schemas
+#### Group Records
 
-##### Get the default / generated Schema
+Group by distinct field value
 
 ```
-curl -v -XGET -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/schema/"$COL"DefaultSchema" \
-    | python -mjson.tool
+curl -v -H"content-type: application/json" -H"accept: application/json" \
+    -XPUT http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+    -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$group\": [{\"field\": \"metric\", \"limit\": 10, \"start\": 1}]}" \
+    | python -m json.tool
 ```
 
-##### Put a Schema
+Group by field queries
+
+```
+curl -v -H"content-type: application/json" -XPUT \
+    http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+    -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$group\": [{\"queries\": [{\"name\": {\"\$regex\": \"/R.*/\"}}, {\"name\": {\"\$regex\": \"/.*a/\"}}], \"start\": 1}]}" \
+    | python -m json.tool
+```
+
+#### Categorize Records
+
+Categorize by distinct field value
+
+```
+curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT \
+    http://127.0.0.1:8098/document/collection/demo_collection/query/all -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$per_page\": 0, \"\$categorize\": [{\"field\": \"metric\"}]}" | python -m json.tool
+```
+
+Categorize by field queries
+
+```
+curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT \
+    http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+    -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$per_page\": 0, \"\$categorize\": [{\"queries\": [{\"name\": {\"\$regex\": \"/R.*/\"}}, {\"name\": {\"\$regex\": \"/.*a/\"}}]}]}" \
+    | python -m json.tool
+```
+
+Categorize by range and increments
+
+```
+curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT \
+    http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+    -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$per_page\": 0, \"\$categorize\": [{\"range\": {\"field\": \"metric\", \"start\": 1, \"end\": 50, \"increment\": 10}}]}" \
+    | python -m json.tool
+```
+
+## Real World Applications
+### Schemas
+
+Schema inferral is great for learning the endpoints and developing simple proofs of concept, but for real world applications there is a better way to manage document indexing.
+
+Riak Json provides access to the following schema endpoint:
+
+```
+GET, PUT, DELETE
+http://localhost:8098/document/collection/blog/schema
+```
+#### Design
+
+First, decide on the schema fields and types for your application
+A blog entry collection might look like this:
+
+```
+[
+  {
+    "name": "author", 
+    "type": "string"
+  },{
+    "name": "post", 
+    "type": "text"
+  },{
+    "name": "timestamp", 
+    "type": "number"
+  }
+]
+```
+
+#### Field Types
+
+All currently supported field types:
+
+* "text" -> A string with spaces
+* "string" -> A string with no spaces
+* "multi_string" -> Array of strings
+* "number" -> Integers or Floats
+
+#### Put
+
+Create the schema by executing a `PUT` on the `/schema` endpoint
 
 ```
 curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/schema/daschema" -d \
-    '[{"name": "single_string", "type": "string"},{"name": "string_with_spaces", "type": "text"},{"name": "some_number", "type": "number"}]'
+    "http://localhost:8098/document/collection/blog/schema" -d \
+    '[{"name": "author", "type": "string"},{"name": "post", "type": "text"},{"name": "timestamp", "type": "number"}]'
 ```
 
-##### Get a Schema
+This same endpoint and method can be used to update a schema as well, however there are some caveats to keep in mind which will be discussed later
+
+#### Get
+
+Verify the schema was saved properly by performing a `GET` on schema
 
 ```
-curl -v -XGET -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/schema/daschema" \
+curl -v -GET -H 'Accept: application/json' \
+    "http://localhost:8098/document/collection/blog/schema" \
     | python -mjson.tool
 ```
 
-#####Example Input
+#### Delete
+
+A schema and the underlying indexes can be deleted as well if a collection should no longer be indexed
 
 ```
-{
-    "name": {"$regex": "/.*/"}, 
-    "$sort": {"metric": 1}
-}
+curl -v -XDELETE -H 'Accept: application/json' \
+    "http://localhost:8098/document/collection/blog/schema"
 ```
 
-#####Example Output
+#### Concerns
 
-```
-{
-    "data": [
-        {
-            "_id": "drew", 
-            "metric": 1, 
-            "name": "Drew"
-        }, 
-        {
-            "_id": "dan", 
-            "metric": 2, 
-            "name": "Dan"
-        }, 
-        {
-            "_id": "felix", 
-            "metric": 3, 
-            "name": "Felix"
-        }
-    ], 
-    "num_pages": 1, 
-    "page": 1, 
-    "per_page": 10, 
-    "stats": "undefined", 
-    "total": 3
-}
-```
+* Index Size: Riak replication + solr index data can become expensive
+* Index Speed: numbers < string < text
+* Fields not in schema: will not be indexed, and will not be queryable
+    
+#### Edge Cases and Questions
 
-#####Stats*
-
-```
-curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
-    "http://localhost:8098/document/collection/$COL/query/all" -d \
-    '{"name": {"$regex": "/.*/"}, "$stats": ["metric"]}' \
-    | python -mjson.tool
-```
-
-\* This was just added so we haven't decided if we're going to do something like this interface or attempt to merge this solr functionality with the $group aggregation framework in mongo
-
-###Next Steps
-
-1. Facet / aggregation integration
-2. Authentication
-3. Direct Riak integration
-4. Additional operators like TO, $geoWithin, $near
-5. Schemaless Support
-6. Field list and other solr feature integrations
-7. General refactoring and cleanup tasks
+* What happens when indexed fields aren’t in an uploaded document? Currently there is no schema enforcement, so nothing will happen. An optional "required" attribute may be added to schema fields in the future
+* Can pre-existing data be indexed? Yes, an existing bucket can be used as a collection. AAE will retro-actively index all of the data in that bucket but it is not deterministic (no status, time remaining, etc)
+* What are the caveats for Schema Update / Migration?
+    * In the Riak 2.0 release, reindex functionality will be exposed by Yokozuna which Riak Json will use it
+    * Until that is released however, indexes will be removed and past data may not be queryable
+    * There are also currently undocumented manual ways to deal with removing stale indexes from old data so that AAE will reindex the data
