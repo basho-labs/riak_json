@@ -14,12 +14,10 @@ git clone https://github.com/basho/riak.git
 cd riak && git checkout ack-riak-json
 ```
 
-#### Download RiakJson and Build
-While in ```riak/``` and on the ```ack-riak-json``` branch,
-download the ```riak_json``` repo and add it to riak dependencies:
+#### Build
+While in ```riak/``` and on the ```ack-riak-json``` branch:
 
 ```
-git clone https://github.com/basho-labs/riak_json.git deps/riak_json
 make rel
 ```
 
