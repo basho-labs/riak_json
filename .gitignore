@@ -1,0 +1,11 @@
+log/
+ebin/*.beam
+ebin/*.app
+deps/*
+**/.#*
+.bundle/*
+.eunit/*
+.DS_Store
+erl_crash.dump
+.idea
+releases/
