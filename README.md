@@ -40,7 +40,7 @@ riak_json = on
 #### Download
 
 ```
-git clone https://github.com/basho/riak_json.git
+git clone https://github.com/basho-labs/riak_json.git
 cd riak_json
 ```
 
@@ -64,9 +64,9 @@ make itest
 
 ### Architecture
 
-Please refer to [docs/architecture.md](https://github.com/basho/riak_json/blob/master/docs/architecture.md) for more information.
+Please refer to [docs/architecture.md](https://github.com/basho-labs/riak_json/blob/master/docs/architecture.md) for more information.
 
 ### API Reference
 
-Please refer to [docs/demo.md](https://github.com/basho/riak_json/blob/master/docs/demo.md) and [docs/query.md](https://github.com/basho/riak_json/blob/master/docs/query.md) for information about how tu use RiakJson and for examples of queries.
+Please refer to [docs/demo.md](https://github.com/basho-labs/riak_json/blob/master/docs/demo.md) and [docs/query.md](https://github.com/basho-labs/riak_json/blob/master/docs/query.md) for information about how tu use RiakJson and for examples of queries.
 
