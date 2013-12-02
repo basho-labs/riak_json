@@ -81,7 +81,7 @@ curl -v -XPUT -H 'Content-Type: application/json' \
     '{"name": "Felix", "metric": 3}'
 ```
 
-Load even more documents into the collection for more compelling reuslts
+Load even more documents into the collection for more compelling results
 
 ```
 curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Petunia -d "{\"name\": \"Petunia\", \"metric\": 31}"
@@ -279,7 +279,7 @@ http://localhost:8098/document/collection/blog/schema
 ```
 #### Design
 
-First, decide on the schema fields and types for your application
+First, decide on the schema fields and types for your application.
 A blog entry collection might look like this:
 
 ```
