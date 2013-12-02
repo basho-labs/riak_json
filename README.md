@@ -4,16 +4,22 @@ Riak Json is a JSON based document and query interface built on Riak and indexed
 
 ### Setup
 
-#### Download
+#### Download Riak Source
+See the [Installing Riak From Source](http://docs.basho.com/riak/2.0.0pre5/ops/building/installing/from-source/) 
+discussion for Riak pre-requisites, and the [Yokozuna Install Docs](https://github.com/basho/yokozuna/blob/develop/docs/INSTALL.md)
+for Yokozuna/Search pre-requisites (specifically, the part about 'Java 1.6 or later, Oracle 7u25 is recommended')
 
 ```
 git clone https://github.com/basho/riak.git
 cd riak && git checkout ack-riak-json
 ```
 
-#### Build
+#### Download RiakJson and Build
+While in ```riak/``` and on the ```ack-riak-json``` branch,
+download the ```riak_json``` repo and add it to riak dependencies:
 
 ```
+git clone https://github.com/basho-labs/riak_json.git deps/riak_json
 make rel
 ```
 
