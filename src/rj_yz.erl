@@ -81,7 +81,7 @@ index_exists(Collection) ->
         P -> P
     end,
 
-    case proplists:get_value(yz_index, Props, <<"_yz_default">>) of
+    case proplists:get_value(search_index, Props, <<"_yz_default">>) of
         <<"_yz_default">> ->
             false;
         _ ->
@@ -100,7 +100,7 @@ delete_index(Collection) ->
     case riak_core_bucket_type:get(BucketType) of
         undefined -> ok;
         _ ->
-            riak_core_bucket_type:update(BucketType, [{yz_index, <<"_yz_default">>}])
+            riak_core_bucket_type:update(BucketType, [{search_index, <<"_yz_default">>}])
     end,
 
     yz_index:remove(IndexName).
@@ -113,14 +113,15 @@ create_index(Collection, SchemaName) ->
     BucketType = bucket_type_from(Collection),
 
     yz_index:create(IndexName, list_to_binary(SchemaName)),
+
     wait_for({yz_solr, ping, [IndexName]}, 5),
 
     case riak_core_bucket_type:get(BucketType) of
         undefined ->
-            riak_core_bucket_type:create(BucketType, [{allow_mult, false},{yz_index, IndexName}]),
+            riak_core_bucket_type:create(BucketType, [{allow_mult, false},{search_index, IndexName}]),
             riak_core_bucket_type:activate(BucketType);
         _ ->
-            riak_core_bucket_type:update(BucketType, [{allow_mult, false},{yz_index, IndexName}])
+            riak_core_bucket_type:update(BucketType, [{allow_mult, false},{search_index, IndexName}])
     end.
 
 perform_query(Collection, Query) ->

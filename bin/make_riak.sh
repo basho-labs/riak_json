@@ -86,7 +86,7 @@ if [ "${mode}" != 'full' ]; then
     cp -R ${json_path}ebin/* ${riak_path}rel/riak/lib/riak_json-1/ebin/
     echo "Fixing riak.conf"
     cp ${riak_path}rel/riak/etc/riak.conf ${riak_path}rel/riak/etc/riak.conf.bak
-    sed 's/yokozuna = off/yokozuna = on/g' ${riak_path}rel/riak/etc/riak.conf.bak > ${riak_path}rel/riak/etc/riak.conf
+    sed 's/search = off/search = on/g' ${riak_path}rel/riak/etc/riak.conf.bak > ${riak_path}rel/riak/etc/riak.conf
     if [ $(grep "buckets.default.siblings" ${riak_path}/rel/riak/etc/riak.conf | wc -l) -eq 0 ];
         then echo "buckets.default.siblings = off" >> ${riak_path}rel/riak/etc/riak.conf;
     fi
@@ -111,7 +111,7 @@ else
     cd ${riak_path} && make rel
     echo "Fixing riak.conf"
     cp ${riak_path}rel/riak/etc/riak.conf ${riak_path}rel/riak/etc/riak.conf.bak
-    sed 's/yokozuna = off/yokozuna = on/g' ${riak_path}rel/riak/etc/riak.conf.bak > ${riak_path}rel/riak/etc/riak.conf
+    sed 's/search = off/search = on/g' ${riak_path}rel/riak/etc/riak.conf.bak > ${riak_path}rel/riak/etc/riak.conf
     if [ $(grep "buckets.default.siblings" ${riak_path}/rel/riak/etc/riak.conf | wc -l) -eq 0 ];
         then echo "buckets.default.siblings = off" >> ${riak_path}rel/riak/etc/riak.conf;
     fi
