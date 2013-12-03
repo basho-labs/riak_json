@@ -173,7 +173,7 @@ process_range_data([{RangeId, {struct, RangeData}}|Rest], Ranges) ->
     Counts = proplists:get_value(<<"counts">>, RangeData),
     process_range_data(Rest, [{struct, [{RangeId, process_field_data(Counts, [])}]}|Ranges]).
 
-process_stats_data([{<<"count">>,null}]) ->
+process_stats_data([{_StatsId, null}]) ->
     [];
 process_stats_data([{_StatsId, {struct, StatsData}}]) ->
     proplists:get_value(<<"facets">>, StatsData).
