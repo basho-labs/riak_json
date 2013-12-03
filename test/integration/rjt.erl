@@ -3,6 +3,7 @@
 
 -compile(export_all).
 
+-include("../../include/riak_json.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -ifdef(integration_test).
@@ -11,7 +12,7 @@ test_bucket() ->
     "rjitest2".
 
 test_bucket_type(Bucket) ->
-    Bucket ++ "RJType".
+    ?RJ_TYPE(Bucket).
 
 fmt(S, Args) ->
     lists:flatten(io_lib:format(S, Args)).
@@ -93,11 +94,11 @@ clear(Bucket, [Key|T]) ->
 clear(Bucket) ->
     KeysUrl = fmt("http://~s:~B/types/~s/buckets/~s/keys?keys=true", [riak_host(), riak_port(), test_bucket_type(Bucket), Bucket]),
     PropsUrl = fmt("http://~s:~B/types/~s/buckets/~s/props", [riak_host(), riak_port(), test_bucket_type(Bucket), Bucket]),
-    IndexUrl = fmt("http://~s:~B/yz/index/~sRJIndex", [riak_host(), riak_port(), Bucket]),
-    SchemaUrl = fmt("http://~s:~B/yz/schema/~sDefaultSchema", [riak_host(), riak_port(), Bucket]),
+    IndexUrl = fmt("http://~s:~B/yz/index/~s", [riak_host(), riak_port(), ?RJ_INDEX(Bucket)]),
+    SchemaUrl = fmt("http://~s:~B/yz/schema/~s", [riak_host(), riak_port(), ?RJ_SCHEMA(Bucket)]),
 
     Keys = case http(get, KeysUrl, <<>>, [], false) of
-        {ok,"200",Resp} -> 
+        {ok,"200",Resp} ->
             {struct,[{<<"keys">>,K}]} = mochijson2:decode(Resp),
             K;
         _ -> []

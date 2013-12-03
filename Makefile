@@ -14,7 +14,6 @@ distclean: clean
 
 cleantest:
 	rm -rf .eunit/*test*
-	rm -rf .eunit/*rjt*
 
 test: all cleantest
 	./rebar skip_deps=true eunit

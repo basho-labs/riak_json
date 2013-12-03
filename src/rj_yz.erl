@@ -32,6 +32,9 @@
     delete_index/1
 ]).
 
+-include("riak_json.hrl").
+-include_lib("yokozuna/include/yokozuna.hrl").
+
 get(Collection, Key) ->
     Result = yz_kv:get(
         yz_kv:client(),
@@ -59,7 +62,7 @@ delete(Collection, Key) ->
 
 get_schema(SchemaName) ->
     S1 = case SchemaName of
-        "default" -> <<"_yz_default">>;
+        "default" -> ?YZ_DEFAULT_SCHEMA_NAME;
         S -> list_to_binary(S)
     end,
 
@@ -81,26 +84,24 @@ index_exists(Collection) ->
         P -> P
     end,
 
-    case proplists:get_value(search_index, Props, <<"_yz_default">>) of
-        <<"_yz_default">> ->
+    case proplists:get_value(?YZ_INDEX, Props, ?YZ_DEFAULT_SCHEMA_NAME) of
+        ?YZ_DEFAULT_SCHEMA_NAME ->
             false;
         _ ->
-            yz_index:exists(list_to_binary(Collection ++ "RJIndex"))
+            yz_index:exists(list_to_binary(?RJ_INDEX(Collection)))
     end.
 
 
 %% Reset bucket type
 %% Delete the index
 delete_index(Collection) ->
-    IndexName = list_to_binary(Collection ++ "RJIndex"),
+    IndexName = list_to_binary(?RJ_INDEX(Collection)),
     BucketType = bucket_type_from(Collection),
-
-
 
     case riak_core_bucket_type:get(BucketType) of
         undefined -> ok;
         _ ->
-            riak_core_bucket_type:update(BucketType, [{search_index, <<"_yz_default">>}])
+            riak_core_bucket_type:update(BucketType, [{?YZ_INDEX, ?YZ_DEFAULT_SCHEMA_NAME}])
     end,
 
     yz_index:remove(IndexName).
@@ -109,7 +110,7 @@ delete_index(Collection) ->
 %% Create / Update the RJ bucket type for this collection
 %% May need to have a different predictable index / schema name
 create_index(Collection, SchemaName) ->
-    IndexName = list_to_binary(Collection ++ "RJIndex"),
+    IndexName = list_to_binary(?RJ_INDEX(Collection)),
     BucketType = bucket_type_from(Collection),
 
     yz_index:create(IndexName, list_to_binary(SchemaName)),
@@ -118,16 +119,16 @@ create_index(Collection, SchemaName) ->
 
     case riak_core_bucket_type:get(BucketType) of
         undefined ->
-            riak_core_bucket_type:create(BucketType, [{allow_mult, false},{search_index, IndexName}]),
+            riak_core_bucket_type:create(BucketType, [{allow_mult, false},{?YZ_INDEX, IndexName}]),
             riak_core_bucket_type:activate(BucketType);
         _ ->
-            riak_core_bucket_type:update(BucketType, [{allow_mult, false},{search_index, IndexName}])
+            riak_core_bucket_type:update(BucketType, [{allow_mult, false},{?YZ_INDEX, IndexName}])
     end.
 
 perform_query(Collection, Query) ->
     lager:info("YZ query: ~p~n", [Query]),
     lager:info("Formatted query: ~p~n", [mochiweb_util:urlencode(Query)]),
-    yz_solr:dist_search(list_to_binary(Collection ++ "RJIndex"), Query).
+    yz_solr:dist_search(list_to_binary(?RJ_INDEX(Collection)), Query).
 
 %%% =================================================== internal functions
 
@@ -144,7 +145,7 @@ wait_for(Check={M,F,A}, Seconds) when Seconds > 0 ->
     end.
 
 bucket_type_from(Collection) ->
-    list_to_binary(Collection ++ "RJType").
+    list_to_binary(?RJ_TYPE(Collection)).
 
 bucket_with_type_from(Collection) ->
     {bucket_type_from(Collection), list_to_binary(Collection)}.

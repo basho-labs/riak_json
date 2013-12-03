@@ -37,6 +37,8 @@
     get_objects/1
     ]).
 
+-include("riak_json.hrl").
+
 is_enabled() ->
     rj_config:is_enabled().
 
@@ -65,7 +67,7 @@ store_schema(SchemaName, JSchema) ->
 
 get_default_schema(Collection) ->
     case index_exists(Collection) of
-        true -> get_schema(Collection ++ "DefaultSchema");
+        true -> get_schema(?RJ_SCHEMA(Collection));
         _ -> {error, notfound}
     end.
 
@@ -95,10 +97,10 @@ maybe_infer_schema(_, _, _) ->
     ok.
 
 maybe_create_schema(Collection, JDocument, false) ->
-    DefaultSchemaName = Collection ++ "DefaultSchema",
+    DefaultSchemaName = ?RJ_SCHEMA(Collection),
     JsonSchema = rj_schema:from_document(JDocument),
     store_schema(DefaultSchemaName, JsonSchema),
-    link_schema(Collection, Collection ++ "DefaultSchema"),
+    link_schema(Collection, ?RJ_SCHEMA(Collection)),
     ok;
 maybe_create_schema(_, _, _) ->
     ok.
@@ -108,4 +110,3 @@ get_objects([], Objects) ->
 get_objects([{Bucket, Key}|Others], Acc) ->
     Object = rj_yz:get(Bucket, Key),
     get_objects(Others, [{Key, Object} | Acc]).
-
