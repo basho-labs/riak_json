@@ -34,6 +34,7 @@
     is_authorized/2
     ]).
 
+-include("riak_json.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
 
 -record(ctx, {
@@ -118,7 +119,7 @@ ensure_schema(Context) ->
 
 store_schema(ReqData, Context) ->
     SchemaName = case Context#ctx.schema_name of
-        undefined -> Context#ctx.collection ++ "DefaultSchema";
+        undefined -> ?RJ_SCHEMA(Context#ctx.collection);
         Name -> Name
     end,
 
