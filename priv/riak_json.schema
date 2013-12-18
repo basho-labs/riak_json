@@ -8,7 +8,7 @@
 { translation,
   "riak_json.enabled",
   fun(Conf) ->
-          Setting = cuttlefish_util:conf_get_value("riak_json", Conf),
+          Setting = cuttlefish:conf_get("riak_json", Conf),
           case Setting of
               on -> true;
               off -> false;
@@ -32,7 +32,7 @@
 { translation,
   "riak_json.infer_schemas",
   fun(Conf) ->
-          Setting = cuttlefish_util:conf_get_value("riak_json.infer_schemas", Conf),
+          Setting = cuttlefish:conf_get("riak_json.infer_schemas", Conf),
           case Setting of
               on -> true;
               off -> false;
@@ -50,7 +50,7 @@
 { translation,
   "riak_json.auth.bypass",
   fun(Conf) ->
-          Setting = cuttlefish_util:conf_get_value("riak_json.auth.bypass", Conf),
+          Setting = cuttlefish:conf_get("riak_json.auth.bypass", Conf),
           case Setting of
               on -> true;
               off -> false;
@@ -86,7 +86,7 @@
 { translation,
   "riak_json.auth.rj_keystone_auth.tenant",
   fun(Conf) ->
-          Setting = cuttlefish_util:conf_get_value("riak_json.auth.rj_keystone_auth.tenant", Conf),
+          Setting = cuttlefish:conf_get("riak_json.auth.rj_keystone_auth.tenant", Conf),
           list_to_binary(Setting)
   end}.
 
@@ -99,7 +99,7 @@
 { translation,
   "riak_json.auth.rj_keystone_auth.admin_username",
   fun(Conf) ->
-          Setting = cuttlefish_util:conf_get_value("riak_json.auth.rj_keystone_auth.admin_username", Conf),
+          Setting = cuttlefish:conf_get("riak_json.auth.rj_keystone_auth.admin_username", Conf),
           list_to_binary(Setting)
   end}.
 
@@ -112,7 +112,7 @@
 { translation,
   "riak_json.auth.rj_keystone_auth.admin_password",
   fun(Conf) ->
-          Setting = cuttlefish_util:conf_get_value("riak_json.auth.rj_keystone_auth.admin_password", Conf),
+          Setting = cuttlefish:conf_get("riak_json.auth.rj_keystone_auth.admin_password", Conf),
           list_to_binary(Setting)
   end}.
 
@@ -125,6 +125,6 @@
 { translation,
   "riak_json.auth.rj_keystone_auth.permitted_roles",
   fun(Conf) ->
-          Setting = cuttlefish_util:conf_get_value("riak_json.auth.rj_keystone_auth.permitted_roles", Conf),
+          Setting = cuttlefish:conf_get("riak_json.auth.rj_keystone_auth.permitted_roles", Conf),
           lists:map(fun(A) -> list_to_binary(A) end, string:tokens(Setting, ","))
   end}.
