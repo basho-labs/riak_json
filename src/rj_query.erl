@@ -240,6 +240,8 @@ operator(<<"$gte">>, P, V) ->
     prefix_prop(P, "[" ++ token_to_string(V) ++ " TO *]");
 operator(<<"$lte">>, P, V) ->
     prefix_prop(P, "[* TO " ++ token_to_string(V) ++ "]");
+operator(<<"$between">>, P, [From, To]) ->
+    prefix_prop(P, "[" ++ token_to_string(From) ++ " TO " ++ token_to_string(To) ++ "]");
 operator(<<"$regex">>, P, V) ->
     token_to_string(P) ++ ":" ++ token_to_string(V);
 operator(<<"$exists">>, P, V) ->
@@ -529,6 +531,12 @@ exists_test() ->
 neg_exists_test() ->
     Input = mochijson2:decode("{\"foo\": {\"$exists\": false}}"),
     Expected = "-foo:[* TO *]",
+    Actual = proplists:get_value("q", from_json(Input, all)),
+    ?assertEqual(Expected, Actual).
+
+between_test() ->
+    Input = mochijson2:decode("{\"foo\": {\"$between\": [1, 10]}}"),
+    Expected = "foo:[1 TO 10]",
     Actual = proplists:get_value("q", from_json(Input, all)),
     ?assertEqual(Expected, Actual).
 
