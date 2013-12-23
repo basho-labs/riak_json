@@ -255,6 +255,60 @@
         ]
     }
 
+### Query with between
+
+    {
+        "metric": {
+            "$between": [
+                1,
+                3
+            ]
+        }
+    }
+
+    curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/query/all -d "{\"metric\": {\"\$between\": [1, 3]}}" | python -m json.tool
+
+#### Results
+
+    {
+        "per_page": 100,
+        "total": 6,
+        "num_pages": 1,
+        "page": 0,
+        "data": [
+            {
+                "metric": 2,
+                "_id": "Max",
+                "name": "Max"
+            },
+            {
+                "metric": 2,
+                "_id": "Roberta",
+                "name": "Roberta"
+            },
+            {
+                "metric": 2,
+                "_id": "Rowena",
+                "name": "Rowena"
+            },
+            {
+                "metric": 1,
+                "_id": "Drew",
+                "name": "Drew"
+            },
+            {
+                "metric": 2,
+                "_id": "Dan",
+                "name": "Dan"
+            },
+            {
+                "metric": 3,
+                "_id": "Felix",
+                "name": "Felix"
+            }
+        ]
+    }
+
 ### Group by value for field, metric
 
     {
