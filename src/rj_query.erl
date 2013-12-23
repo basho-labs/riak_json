@@ -279,6 +279,8 @@ token_to_string(V) when is_binary(V) ->
 token_to_string(V) when not is_binary(V) ->
     lists:flatten(io_lib:format("~p", [V])).
 
+value_to_string(V) when V =:= <<"*">> ->
+    token_to_string(V);
 value_to_string(V) when is_binary(V) ->
     "\"" ++ token_to_string(V) ++ "\"";
 value_to_string(V) ->
@@ -436,6 +438,13 @@ process_query_modifier_parts_test() ->
                 % {"facet.field", "name"}],
     Actual = process_query_modifier_parts(Doc, []),
 
+    ?assertEqual(Expected, Actual).
+
+all_fields_all_values_test() ->
+    Input = mochijson2:decode(
+        "{\"*\":\"*\"}"),
+    Expected = "*:*",
+    Actual = proplists:get_value("q", from_json(Input, all)),
     ?assertEqual(Expected, Actual).
 
 equality_test() ->

@@ -156,9 +156,7 @@
     {
         "$and": [
             {
-                "name": {
-                    "$regex": "/R.*/"
-                }
+                "*": "*"
             },
             {
                 "metric": {
@@ -173,16 +171,36 @@
         ]
     }
 
-    curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/query/all -d "{\"\$and\": [{\"name\": {\"\$regex\": \"/R.*/\"}}, {\"metric\": {\"\$gte\": 5}}, {\"metric\": {\"\$lte\": 100}}]}" | python -m json.tool
+    curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/query/all -d "{\"\$and\": [{\"*\": \"*\"}, {\"metric\": {\"\$gte\": 5}}, {\"metric\": {\"\$lte\": 100}}]}" | python -m json.tool
 
 #### Results:
 
     {
         "per_page": 100,
-        "total": 1,
+        "total": 5,
         "num_pages": 1,
         "page": 0,
         "data": [
+            {
+                "metric": 33,
+                "_id": "Harold",
+                "name": "Harold"
+            },
+            {
+                "metric": 31,
+                "_id": "Petunia",
+                "name": "Petunia"
+            },
+            {
+                "metric": 28,
+                "_id": "Carrie",
+                "name": "Carrie"
+            },
+            {
+                "metric": 28,
+                "_id": "Wilt",
+                "name": "Wilt"
+            },
             {
                 "metric": 40,
                 "_id": "Robert",
