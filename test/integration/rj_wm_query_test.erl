@@ -53,7 +53,8 @@ expected_data() ->
      ?_assertEqual({ok, "200", query_all_regex_result()},              rjt:http(put, rjt:url("searchcol","/query/all"), query_all_regex())),
      ?_assertEqual({ok, "200", query_all_sort_asc_result()},           rjt:http(put, rjt:url("searchcol","/query/all"), query_all_sort_asc())),
      ?_assertEqual({ok, "200", query_all_sort_desc_result()},          rjt:http(put, rjt:url("searchcol","/query/all"), query_all_sort_desc())),
-     ?_assertEqual({ok, "200", query_all_between_result()},            rjt:http(put, rjt:url("searchcol","/query/all"), query_all_between()))
+     ?_assertEqual({ok, "200", query_all_between_result()},            rjt:http(put, rjt:url("searchcol","/query/all"), query_all_between())),
+     ?_assertEqual({ok, "200", query_all_limit_1_result()},            rjt:http(put, rjt:url("searchcol","/query/all"), query_all_limit_1()))
     ].
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -117,9 +118,6 @@ query_all_group_query_result() ->
 query_all_or() ->
     "{\"$or\": [{\"name\": {\"$regex\": \"/D.*/\"}},{\"name\": {\"$regex\": \"/F.*/\"}}]}".
 
-query_all_between() ->
-    "{\"metric\": {\"$between\": [1, 3]}}".
-
 query_all_or_result() ->
     "{\"total\":3,\"page\":0,\"per_page\":100,\"num_pages\":1,\"data\":[{\"_id\":\"Drew\",\"name\":\"Drew\",\"metric\":1},{\"_id\":\"Dan\",\"name\":\"Dan\",\"metric\":2},{\"_id\":\"Felix\",\"name\":\"Felix\",\"metric\":3}]}".
 
@@ -152,6 +150,15 @@ query_all_sort_desc() ->
 
 query_all_sort_desc_result() ->
     "{\"total\":11,\"page\":0,\"per_page\":100,\"num_pages\":1,\"data\":[{\"_id\":\"Casey\",\"name\":\"Casey\",\"metric\":9000},{\"_id\":\"Robert\",\"name\":\"Robert\",\"metric\":40},{\"_id\":\"Petunia\",\"name\":\"Petunia\",\"metric\":31},{\"_id\":\"Carrie\",\"name\":\"Carrie\",\"metric\":28},{\"_id\":\"Wilt\",\"name\":\"Wilt\",\"metric\":28},{\"_id\":\"Felix\",\"name\":\"Felix\",\"metric\":3},{\"_id\":\"Max\",\"name\":\"Max\",\"metric\":2},{\"_id\":\"Roberta\",\"name\":\"Roberta\",\"metric\":2},{\"_id\":\"Rowena\",\"name\":\"Rowena\",\"metric\":2},{\"_id\":\"Dan\",\"name\":\"Dan\",\"metric\":2},{\"_id\":\"Drew\",\"name\":\"Drew\",\"metric\":1}]}".
+
+query_all_limit_1() ->
+    "{\"*\":\"*\", \"$per_page\": 1, \"$sort\": {\"metric\": 1}}".
+
+query_all_limit_1_result() ->
+    "{\"total\":11,\"page\":0,\"per_page\":1,\"num_pages\":11,\"data\":[{\"_id\":\"Drew\",\"name\":\"Drew\",\"metric\":1}]}".
+
+query_all_between() ->
+    "{\"metric\": {\"$between\": [1, 3]}}".
 
 query_all_between_result() ->
     "{\"total\":6,\"page\":0,\"per_page\":100,\"num_pages\":1,\"data\":[{\"_id\":\"Max\",\"name\":\"Max\",\"metric\":2},{\"_id\":\"Roberta\",\"name\":\"Roberta\",\"metric\":2},{\"_id\":\"Rowena\",\"name\":\"Rowena\",\"metric\":2},{\"_id\":\"Drew\",\"name\":\"Drew\",\"metric\":1},{\"_id\":\"Dan\",\"name\":\"Dan\",\"metric\":2},{\"_id\":\"Felix\",\"name\":\"Felix\",\"metric\":3}]}".
