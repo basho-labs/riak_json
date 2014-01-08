@@ -54,7 +54,9 @@ expected_data() ->
      ?_assertEqual({ok, "200", query_all_sort_asc_result()},           rjt:http(put, rjt:url("searchcol","/query/all"), query_all_sort_asc())),
      ?_assertEqual({ok, "200", query_all_sort_desc_result()},          rjt:http(put, rjt:url("searchcol","/query/all"), query_all_sort_desc())),
      ?_assertEqual({ok, "200", query_all_between_result()},            rjt:http(put, rjt:url("searchcol","/query/all"), query_all_between())),
-     ?_assertEqual({ok, "200", query_all_limit_1_result()},            rjt:http(put, rjt:url("searchcol","/query/all"), query_all_limit_1()))
+     ?_assertEqual({ok, "200", query_all_limit_1_result()},            rjt:http(put, rjt:url("searchcol","/query/all"), query_all_limit_1())),
+     ?_assertEqual({ok, "400", query_bad_request_doc_result()},        rjt:http(put, rjt:url("searchcol","/query/all"), query_bad_request_doc())),
+     ?_assertEqual({ok, "200", delete_then_query_result()},            rjt:http(put, rjt:url("searchcol","/query/all"), delete_then_query()))
     ].
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -162,6 +164,22 @@ query_all_between() ->
 
 query_all_between_result() ->
     "{\"total\":6,\"page\":0,\"per_page\":100,\"num_pages\":1,\"data\":[{\"_id\":\"Max\",\"name\":\"Max\",\"metric\":2},{\"_id\":\"Roberta\",\"name\":\"Roberta\",\"metric\":2},{\"_id\":\"Rowena\",\"name\":\"Rowena\",\"metric\":2},{\"_id\":\"Drew\",\"name\":\"Drew\",\"metric\":1},{\"_id\":\"Dan\",\"name\":\"Dan\",\"metric\":2},{\"_id\":\"Felix\",\"name\":\"Felix\",\"metric\":3}]}".
+
+query_bad_request_doc() ->
+    "{bad: bad}".
+
+query_bad_request_doc_result() ->
+    "<html><head><title>400 Bad Request</title></head><body><h1>Bad Request</h1>Bad Request<p><hr><address>mochiweb+webmachine web server</address></body></html>".
+
+delete_then_query() ->
+    {ok, "204", _} = rjt:http(put, rjt:url("searchcol","/TO_BE_DELETED"), <<"{\"name\": \"DELETEME\", \"metric\": 999}">>),
+    %% 1 second solr soft commit allowance
+    timer:sleep(1500),
+    {ok, "204", _} = rjt:http(delete, rjt:url("searchcol","/TO_BE_DELETED")),
+    "{\"name\":\"DELETEME\"}".
+
+delete_then_query_result() ->
+    "{\"total\":1,\"page\":0,\"per_page\":100,\"num_pages\":1,\"data\":[]}".
 
 -endif.
 
