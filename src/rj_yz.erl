@@ -36,10 +36,14 @@
 -include_lib("yokozuna/include/yokozuna.hrl").
 
 get(Collection, Key) ->
+    lager:debug("Collection: ~p, Key: ~p~n", [Collection, Key]),
+
     Result = yz_kv:get(
         yz_kv:client(),
         bucket_with_type_from(Collection),
         list_to_binary(Key)),
+
+    lager:debug("Get Result: ~p~n", [Result]),
 
     case Result of
         {value, V} ->
@@ -49,24 +53,41 @@ get(Collection, Key) ->
 
 
 put(Collection, Key, Doc) ->
-    yz_kv:put(
+    lager:debug("Collection: ~p, Key: ~p, Doc: ~p~n", [Collection, Key, Doc]),
+
+    Result = yz_kv:put(
         yz_kv:client(),
         bucket_with_type_from(Collection),
         list_to_binary(Key),
         Doc,
-        "application/json").
+        "application/json"),
+
+    lager:debug("Put Result: ~p~n", [Result]),
+
+    Result.
 
 delete(Collection, Key) ->
+    lager:debug("Collection: ~p, Key: ~p~n", [Collection, Key]),
+
     C = yz_kv:client(),
-    C:delete(bucket_with_type_from(Collection), list_to_binary(Key)).
+    Result = C:delete(bucket_with_type_from(Collection), list_to_binary(Key)),
+
+    lager:debug("Delete Result: ~p~n", [Result]),
+
+    Result.
 
 get_schema(SchemaName) ->
+    lager:debug("SchemaName: ~p~n", [SchemaName]),
     S1 = case SchemaName of
         "default" -> ?YZ_DEFAULT_SCHEMA_NAME;
         S -> list_to_binary(S)
     end,
 
-    case yz_schema:get(S1) of
+    Result = yz_schema:get(S1),
+
+    lager:debug("Get Schema Result: ~p~n", [Result]),
+
+    case Result of
         {ok, RawSchema} ->
             binary_to_list(RawSchema);
         {error, _, Reason} ->
@@ -74,9 +95,17 @@ get_schema(SchemaName) ->
     end.
 
 store_schema(SchemaName, XMLSchema) ->
-    yz_schema:store(list_to_binary(SchemaName), list_to_binary(XMLSchema)).
+    lager:debug("SchemaName: ~p, XMLSchema~p~n", [SchemaName, XMLSchema]),
+
+    Result = yz_schema:store(list_to_binary(SchemaName), list_to_binary(XMLSchema)),
+
+    lager:debug("Store Schema Result: ~p~n", [Result]),
+
+    Result.
 
 index_exists(Collection) ->
+    lager:debug("Collection: ~p~n", [Collection]),
+
     BucketType = bucket_type_from(Collection),
 
     Props = case riak_core_bucket_type:get(BucketType) of
@@ -84,7 +113,11 @@ index_exists(Collection) ->
         P -> P
     end,
 
-    case proplists:get_value(?YZ_INDEX, Props, ?YZ_DEFAULT_SCHEMA_NAME) of
+    Result = proplists:get_value(?YZ_INDEX, Props, ?YZ_DEFAULT_SCHEMA_NAME),
+
+    lager:debug("Index Exists Result: ~p~n", [Result]),
+
+    case Result of
         ?YZ_DEFAULT_SCHEMA_NAME ->
             false;
         _ ->
@@ -95,6 +128,8 @@ index_exists(Collection) ->
 %% Reset bucket type
 %% Delete the index
 delete_index(Collection) ->
+    lager:debug("Collection: ~p~n", [Collection]),
+
     IndexName = list_to_binary(?RJ_INDEX(Collection)),
     BucketType = bucket_type_from(Collection),
 
@@ -104,16 +139,24 @@ delete_index(Collection) ->
             riak_core_bucket_type:update(BucketType, [{?YZ_INDEX, ?YZ_DEFAULT_SCHEMA_NAME}])
     end,
 
-    yz_index:remove(IndexName).
+    Result = yz_index:remove(IndexName),
+
+    lager:debug("Delete Index Result: ~p~n", [Result]),
+
+    Result.
 
 %% Create an index for a created schema
 %% Create / Update the RJ bucket type for this collection
 %% May need to have a different predictable index / schema name
 create_index(Collection, SchemaName) ->
+    lager:debug("Collection: ~p, SchemaName~p~n", [Collection, SchemaName]),
+
     IndexName = list_to_binary(?RJ_INDEX(Collection)),
     BucketType = bucket_type_from(Collection),
 
-    yz_index:create(IndexName, list_to_binary(SchemaName)),
+    Result = yz_index:create(IndexName, list_to_binary(SchemaName)),
+
+    lager:debug("Create Index Result: ~p~n", [Result]),
 
     wait_for({yz_solr, ping, [IndexName]}, 5),
 
@@ -126,9 +169,14 @@ create_index(Collection, SchemaName) ->
     end.
 
 perform_query(Collection, Query) ->
-    lager:info("YZ query: ~p~n", [Query]),
-    lager:info("Formatted query: ~p~n", [mochiweb_util:urlencode(Query)]),
-    yz_solr:dist_search(list_to_binary(?RJ_INDEX(Collection)), Query).
+    lager:debug("Collection: ~p, Query~p~n", [Collection, Query]),
+
+    lager:debug("Formatted query: ~p~n", [mochiweb_util:urlencode(Query)]),
+    Result = yz_solr:dist_search(list_to_binary(?RJ_INDEX(Collection)), Query),
+
+    lager:debug("Perform Query Result: ~p~n", [Result]),
+
+    Result.
 
 %%% =================================================== internal functions
 
