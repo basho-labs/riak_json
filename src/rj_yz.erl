@@ -47,7 +47,6 @@ get(Collection, Key) ->
         _ -> undefined
     end.
 
-
 put(Collection, Key, Doc) ->
     yz_kv:put(
         yz_kv:client(),
@@ -126,8 +125,7 @@ create_index(Collection, SchemaName) ->
     end.
 
 perform_query(Collection, Query) ->
-    lager:info("YZ query: ~p~n", [Query]),
-    lager:info("Formatted query: ~p~n", [mochiweb_util:urlencode(Query)]),
+    lager:debug("Formatted query: ~p~n", [mochiweb_util:urlencode(Query)]),
     yz_solr:dist_search(list_to_binary(?RJ_INDEX(Collection)), Query).
 
 %%% =================================================== internal functions

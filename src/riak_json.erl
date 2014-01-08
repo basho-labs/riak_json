@@ -108,5 +108,7 @@ maybe_create_schema(_, _, _) ->
 get_objects([], Objects) ->
     lists:reverse(Objects);
 get_objects([{Bucket, Key}|Others], Acc) ->
-    Object = rj_yz:get(Bucket, Key),
-    get_objects(Others, [{Key, Object} | Acc]).
+    case rj_yz:get(Bucket, Key) of
+        undefined -> get_objects(Others, Acc);
+        Object -> get_objects(Others, [{Key, Object} | Acc])
+    end.

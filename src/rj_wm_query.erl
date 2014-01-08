@@ -50,7 +50,7 @@ service_available(ReqData, Context=#ctx{}) ->
     {
         rj_config:is_enabled(),
         ReqData,
-        context_from(ReqData, Context)
+        Context
     }.
 
 allowed_methods(ReqData, Context) ->
@@ -62,14 +62,16 @@ content_types_accepted(ReqData, Context) ->
 content_types_provided(ReqData, Context) ->
     {[{"application/json", to_json}], ReqData, Context}.
 
-malformed_request(ReqData, Context=#ctx{solr_query=undefined}) ->
-        {true, ReqData, Context};
 malformed_request(ReqData, Context) ->
-        {false, ReqData, Context}.
+    case context_from(ReqData, Context) of
+        {error, malformed_query} -> {true, ReqData, Context};
+        PopulatedContext -> {false, ReqData, PopulatedContext}
+    end.
 
 accept_json(ReqData, Context) ->
     try
         {_Headers, JsonResults} = riak_json:find(Context#ctx.collection, Context#ctx.solr_query),
+        lager:debug("Query: ~p~nResult: ~p~n", [Context#ctx.solr_query, JsonResults]),
         JsonResponse = rj_query_response:format_json_response(JsonResults, 
                                                               Context#ctx.query_type, 
                                                               Context#ctx.solr_query),
@@ -79,9 +81,9 @@ accept_json(ReqData, Context) ->
             Context
         }
     catch
-        Exception ->
-            lager:info("Query Failed: ~p~n", [Exception]), 
-            {false, ReqData, Context}
+        Exception:Cause ->
+            lager:error("Query failed, ~p: ~p:~p~n~p", [Context#ctx.solr_query, Exception, Cause, erlang:get_stacktrace()]), 
+            {{halt, 500}, ReqData, Context}
     end.
 
 
@@ -118,12 +120,9 @@ context_from(ReqData, Context) ->
             solr_query = SolrQuery
         }
     catch
-        _ ->
-            Context#ctx{
-            collection = undefined,
-            query_type = undefined,
-            solr_query = undefined
-        }
+        Exception:Reason ->
+            lager:debug("Malformed query: ~p. ~p:~p", [wrq:req_body(ReqData), Exception, Reason]),
+            {error, malformed_query}
     end.
 
 query_type_from(ReqData) ->
