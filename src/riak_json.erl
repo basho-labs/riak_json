@@ -23,12 +23,12 @@
 
 -module(riak_json).
 -export([
-    is_enabled/0,
     store_document/3,
     get_document/2,
     delete_document/2,
     link_schema/2,
     store_schema/2,
+    get_schema_name/1,
     get_schema/1,
     get_default_schema/1,
     delete_default_schema/1,
@@ -39,11 +39,8 @@
 
 -include("riak_json.hrl").
 
-is_enabled() ->
-    rj_config:is_enabled().
-
 store_document(Collection, Key, JDocument) ->
-    maybe_infer_schema(Collection, JDocument, rj_config:infer_schemas()),
+    maybe_create_schema(Collection, JDocument, rj_yz:index_exists(Collection)),
     rj_yz:put(Collection, Key, JDocument).
 
 get_document(Collection, Key) ->
@@ -71,6 +68,9 @@ get_default_schema(Collection) ->
         _ -> {error, notfound}
     end.
 
+get_schema_name(Collection) ->
+    ?RJ_SCHEMA(Collection).
+
 get_schema(SchemaName) ->
     XMLSchema = rj_yz:get_schema(SchemaName),
 
@@ -89,12 +89,6 @@ get_objects(BucketKeyList) ->
     get_objects(BucketKeyList, []).
 
 %%% =================================================== internal functions
-
-maybe_infer_schema(Collection, JDocument, true) ->
-    %% Shortcut checking if schema exists, if there is no index then there isn't a schema
-    maybe_create_schema(Collection, JDocument, rj_yz:index_exists(Collection));
-maybe_infer_schema(_, _, _) ->
-    ok.
 
 maybe_create_schema(Collection, JDocument, false) ->
     DefaultSchemaName = ?RJ_SCHEMA(Collection),

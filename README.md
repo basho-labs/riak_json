@@ -23,13 +23,11 @@ make rel
 
 #### Configure
 
-Verify that Search and RiakJson are both turned `on` in `rel/riak/etc/riak.conf`
+Verify that Search is enabled in `rel/riak/etc/riak.conf`
 
 ```
 ...
 search = on
-...
-riak_json = on
 ...
 ```
 
@@ -41,36 +39,44 @@ riak_json = on
 
 ### Test
 
-#### Download
+#### Http Interface
 
 ```
-git clone https://github.com/basho-labs/riak_json.git
-cd riak_json
-```
+# Download
+git clone https://github.com/basho-labs/riak_json_http.git
+cd riak_json_http
 
-#### Build
-
-```
+# Build
 make
-```
 
-#### Unit test
-
-```
+# Unit Test
 make test
-```
 
-#### Integration test
-
-```
+# Integration Test
 make itest
+```
+
+#### Wire Interface (for MongoDB clients) (WORK IN PROGRESS)
+
+```
+# Download
+# git clone https://github.com/basho-labs/riak_json_wire.git
+# cd riak_json_wire
+
+# Build
+# make
+
+# Unit Test
+# make test
+
+# Integration Test
+# make itest
 ```
 
 ### Architecture
 
 Please refer to [docs/architecture.md](https://github.com/basho-labs/riak_json/blob/master/docs/architecture.md) for more information.
 
-### API Reference
+### Http API Reference
 
 Please refer to [docs/demo.md](https://github.com/basho-labs/riak_json/blob/master/docs/demo.md) and [docs/query.md](https://github.com/basho-labs/riak_json/blob/master/docs/query.md) for information about how tu use RiakJson and for examples of queries.
-

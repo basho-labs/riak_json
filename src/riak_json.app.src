@@ -1,14 +1,8 @@
-%%-*- mode: erlang -*-
-{application, riak_json,
- [
-  {description, "riak_json"},
-  {vsn, "1"},
-  {modules, []},
-  {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib,
-                  yokozuna
-                 ]},
-  {mod, { rj_app, []}}
- ]}.
+{ application, riak_json,
+  [ { description, "RiakJson library." },
+    { vsn, "1" },
+    { registered, [] },
+    { applications, [kernel,stdlib] },
+    { env, [] }
+  ]
+}.
