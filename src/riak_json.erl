@@ -23,7 +23,6 @@
 
 -module(riak_json).
 -export([
-    is_enabled/0,
     store_document/3,
     get_document/2,
     delete_document/2,
