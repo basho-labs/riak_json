@@ -67,6 +67,9 @@ get_default_schema(Collection) ->
         _ -> {error, notfound}
     end.
 
+get_schema_name(Collection) ->
+    ?RJ_SCHEMA(Collection).
+
 get_schema(SchemaName) ->
     XMLSchema = rj_yz:get_schema(SchemaName),
 
