@@ -1,6 +1,6 @@
 # RiakJson Architecture
 
-![RiakJson Overview](https://github.com/basho-labs/riak_json/blob/master/docs/riak_json_arch.jpg)
+![RiakJson Overview](https://raw.github.com/basho-labs/riak_json/master/docs/riak_json_arch.jpg)
 
 ##Riak Integration
 RiakJson is a library of modules whose core responsibilities are:
@@ -22,7 +22,7 @@ RiakJson is a library of modules whose core responsibilities are:
 
 Schemas can be inferred based on the contents of the first document stored in a RiakJson collection, although manually creating a Json schema is the preferred approach for actual applications.
 
-![RiakJson Schema Flow](https://github.com/basho-labs/riak_json/blob/master/docs/riak_json_schema.jpg)
+![RiakJson Schema Flow](https://raw.github.com/basho-labs/riak_json/master/docs/riak_json_schema.jpg)
 
 ##### Example Schema
 
