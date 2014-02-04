@@ -39,11 +39,8 @@
 
 -include("riak_json.hrl").
 
-is_enabled() ->
-    rj_config:is_enabled().
-
 store_document(Collection, Key, JDocument) ->
-    maybe_infer_schema(Collection, JDocument, rj_config:infer_schemas()),
+    maybe_create_schema(Collection, JDocument, rj_yz:index_exists(Collection)),
     rj_yz:put(Collection, Key, JDocument).
 
 get_document(Collection, Key) ->
@@ -89,12 +86,6 @@ get_objects(BucketKeyList) ->
     get_objects(BucketKeyList, []).
 
 %%% =================================================== internal functions
-
-maybe_infer_schema(Collection, JDocument, true) ->
-    %% Shortcut checking if schema exists, if there is no index then there isn't a schema
-    maybe_create_schema(Collection, JDocument, rj_yz:index_exists(Collection));
-maybe_infer_schema(_, _, _) ->
-    ok.
 
 maybe_create_schema(Collection, JDocument, false) ->
     DefaultSchemaName = ?RJ_SCHEMA(Collection),
