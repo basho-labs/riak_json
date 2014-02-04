@@ -1,8 +1,30 @@
 # RiakJson Architecture
 
-![RiakJson Flow](http://f.cl.ly/items/410v0a0B3w2G1L354034/Image%202013.10.25%201%3A36%3A43%20PM.jpeg)
+![RiakJson Overview](https://github.com/basho-labs/riak_json/blob/master/docs/riak_json_arch.jpg)
 
-####Inferred Schemas
+##Riak Integration
+RiakJson is a library of modules whose core responsibilities are:
+
+##### Riak K/V Integration
+* CRUD Operations given a "Collection", "Key", and "Document" using Riak K/V
+
+##### Riak Search Query Integration
+* Translation of Json queries to Solr queries
+* Execution of those queries on Riak Search
+* Building a Json result set from the Solr query results
+
+##### Riak Search Schema Integration
+* Translation of Json schemas to Solr XML schemas and back
+* CRUD Operations given a "Collection", "SchemaName", and "Schema" using Riak Search
+* BucketType and Index management / abstraction for searchable "Collections" / buckets
+
+##Inferred Schemas
+
+Schemas can be inferred based on the contents of the first document stored in a RiakJson collection, although manually creating a Json schema is the preferred approach for actual applications.
+
+![RiakJson Schema Flow](https://github.com/basho-labs/riak_json/blob/master/docs/riak_json_schema.jpg)
+
+##### Example Schema
 
 ```
     [
@@ -20,6 +42,7 @@
       }
     ]
 ```
+##### Schema Endpoints
 
 A schema for a collection can befound at the /schema endpoint:
 
@@ -32,7 +55,3 @@ This maps directly to an XML generated schema that Yokozuna understands
 ```
 http://localhost:8098/yz/schema/{collection}DefaultSchema
 ```
-
-####Riak Integration
-
-RiakJson is implemented as an app directly on top of Riak, the only integration points it has are some internal api calls to Yokozuna.
