@@ -28,6 +28,7 @@
     delete_document/2,
     link_schema/2,
     store_schema/2,
+    get_schema_name/1,
     get_schema/1,
     get_default_schema/1,
     delete_default_schema/1,
