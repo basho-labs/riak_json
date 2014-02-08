@@ -1,7 +1,7 @@
 
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2014 Basho Technologies, Inc.
+%% Copyright (c) 2013 Basho Technologies, Inc.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -34,10 +34,16 @@
     delete_default_schema/1,
     find/2,
     index_exists/1,
-    get_objects/1
+    get_objects/1,
+    get_collections/0,
+    get_collections/1
     ]).
 
 -include("riak_json.hrl").
+
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
 
 store_document(Collection, Key, JDocument) ->
     maybe_create_schema(Collection, JDocument, rj_yz:index_exists(Collection)),
@@ -88,7 +94,43 @@ index_exists(Collection) ->
 get_objects(BucketKeyList) ->
     get_objects(BucketKeyList, []).
 
+get_collections() ->
+    get_collections(<<>>).
+
+get_collections(AnyPrefix) ->
+    Prefix = ?any_to_binary(AnyPrefix),
+    get_collections(Prefix, rj_yz:bucket_type_list(), []).
+
+get_collections(_, [], Cols) ->
+    lists:reverse(Cols);
+get_collections(Prefix, [{_, false, _}| R], Cols) ->
+    get_collections(Prefix, R, Cols);
+get_collections(<<>>=Prefix, [{Name, true, _}| R], Cols) ->
+    get_collections(Prefix, R, [{name, Name} | Cols]);
+get_collections(Prefix, [{Name, true, _}| R], Cols) ->
+    case is_rj_collection(Prefix, Name) of
+        true -> get_collections(Prefix, R, [{name, Name} | Cols]);
+        false -> get_collections(Prefix, R, Cols)
+    end.
+
 %%% =================================================== internal functions
+
+% binary only
+is_rj_collection(Prefix, Name) ->
+    PreSize = byte_size(Prefix),
+    Postfix = ?any_to_binary(?RJ_TYPE_POSTFIX),
+    PostSize = byte_size(Postfix), 
+    NPSize = byte_size(Name) - PostSize,
+    case Prefix of
+        <<>> -> case Name of
+            <<_:NPSize/binary, Postfix:PostSize/binary>> -> true;
+            _ -> false
+        end;
+        _ -> case Name of
+            <<Prefix:PreSize/binary, $.:8,_:NPSize/binary, Postfix:PostSize/binary>> -> true;
+            _ -> false
+        end
+    end.
 
 maybe_create_schema(Collection, JDocument, false) ->
     DefaultSchemaName = ?RJ_SCHEMA(Collection),
@@ -106,3 +148,15 @@ get_objects([{Bucket, Key}|Others], Acc) ->
         undefined -> get_objects(Others, Acc);
         Object -> get_objects(Others, [{Key, Object} | Acc])
     end.
+
+-ifdef(TEST).
+
+collections_test() ->
+    LName = ?RJ_TYPE("testing"),
+    Name = ?any_to_binary(LName),
+    PreName = << "mydb", $.:8, Name/binary >>,
+    ?debugFmt("prename: ~p~n", [PreName]),
+    ?assertEqual(true, is_rj_collection(<<>>, Name)),
+    ?assertEqual(true, is_rj_collection(<<"mydb">>, PreName)),
+    ?assertEqual(false, is_rj_collection(<<>>, <<"default">>)).
+-endif.

@@ -29,7 +29,8 @@
     index_exists/1,
     create_index/2,
     perform_query/2,
-    delete_index/1
+    delete_index/1,
+    bucket_type_list/0
 ]).
 
 -include("riak_json.hrl").
@@ -173,6 +174,21 @@ perform_query(Collection, Query) ->
     lager:debug("Result: ~p~n", [Result]),
 
     Result.
+
+bucket_type_list() ->
+    It = riak_core_bucket_type:iterator(),
+    bucket_type_list(It, []).
+
+bucket_type_list(It, Types) ->
+    case riak_core_bucket_type:itr_done(It) of
+        true ->
+            riak_core_bucket_type:itr_close(It),
+            lists:reverse(Types);
+        false ->
+            {Type, Props} = riak_core_bucket_type:itr_value(It),
+            IsActive = proplists:get_value(active, Props, false),
+            bucket_type_list(riak_core_bucket_type:itr_next(It), [{Type, IsActive, Props} | Types])
+    end.
 
 %%% =================================================== internal functions
 
