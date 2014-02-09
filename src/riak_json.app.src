@@ -1,6 +1,6 @@
 { application, riak_json,
   [ { description, "RiakJson library." },
-    { vsn, git },
+    { vsn, "v0.0.1" },
     { registered, [] },
     { applications, [kernel,stdlib] },
     { env, [] }
