@@ -42,7 +42,7 @@ get(Collection, Key) ->
     Result = yz_kv:get(
         yz_kv:client(),
         bucket_with_type_from(Collection),
-        ?any_to_binary(Key)),
+        rj_util:any_to_binary(Key)),
 
     lager:debug("Result: ~p~n", [Result]),
 
@@ -58,7 +58,7 @@ put(Collection, Key, Doc) ->
     Result = yz_kv:put(
         yz_kv:client(),
         bucket_with_type_from(Collection),
-        ?any_to_binary(Key),
+        rj_util:any_to_binary(Key),
         Doc,
         "application/json"),
 
@@ -70,7 +70,7 @@ delete(Collection, Key) ->
     lager:debug("Collection: ~p, Key: ~p~n", [Collection, Key]),
 
     C = yz_kv:client(),
-    Result = C:delete(bucket_with_type_from(Collection), ?any_to_binary(Key)),
+    Result = C:delete(bucket_with_type_from(Collection), rj_util:any_to_binary(Key)),
 
     lager:debug("Result: ~p~n", [Result]),
 
@@ -81,7 +81,7 @@ get_schema(SchemaName) ->
 
     S1 = case SchemaName of
         "default" -> ?YZ_DEFAULT_SCHEMA_NAME;
-        S -> ?any_to_binary(S)
+        S -> rj_util:any_to_binary(S)
     end,
 
     Result = case yz_schema:get(S1) of
@@ -98,7 +98,7 @@ get_schema(SchemaName) ->
 store_schema(SchemaName, XMLSchema) ->
     lager:debug("SchemaName: ~p, XMLSchema: ~p~n", [SchemaName, XMLSchema]),
 
-    Result = yz_schema:store(?any_to_binary(SchemaName), ?any_to_binary(XMLSchema)),
+    Result = yz_schema:store(rj_util:any_to_binary(SchemaName), rj_util:any_to_binary(XMLSchema)),
 
     lager:debug("Result: ~p~n", [Result]),
 
@@ -118,7 +118,7 @@ index_exists(Collection) ->
         ?YZ_DEFAULT_SCHEMA_NAME ->
             false;
         _ ->
-            yz_index:exists(?any_to_binary(?RJ_INDEX(Collection)))
+            yz_index:exists(rj_util:any_to_binary(?RJ_INDEX(Collection)))
     end,
 
     lager:debug("Result: ~p~n", [Result]),
@@ -131,7 +131,7 @@ index_exists(Collection) ->
 delete_index(Collection) ->
     lager:debug("Collection: ~p~n", [Collection]),
 
-    IndexName = ?any_to_binary(?RJ_INDEX(Collection)),
+    IndexName = rj_util:any_to_binary(?RJ_INDEX(Collection)),
     BucketType = bucket_type_from(Collection),
 
     case riak_core_bucket_type:get(BucketType) of
@@ -152,10 +152,10 @@ delete_index(Collection) ->
 create_index(Collection, SchemaName) ->
     lager:debug("Collection: ~p, SchemaName: ~p~n", [Collection, SchemaName]),
 
-    IndexName = ?any_to_binary(?RJ_INDEX(Collection)),
+    IndexName = rj_util:any_to_binary(?RJ_INDEX(Collection)),
     BucketType = bucket_type_from(Collection),
 
-    yz_index:create(IndexName, ?any_to_binary(SchemaName)),
+    yz_index:create(IndexName, rj_util:any_to_binary(SchemaName)),
 
     wait_for({yz_solr, ping, [IndexName]}, 5),
 
@@ -169,7 +169,7 @@ create_index(Collection, SchemaName) ->
 
 perform_query(Collection, Query) ->
     lager:debug("Collection: ~p, Query: ~p, Formatted query: ~p~n", [Collection, Query, mochiweb_util:urlencode(Query)]),
-    Result = yz_solr:dist_search(list_to_binary(?RJ_INDEX(?any_to_list(Collection))), Query),
+    Result = yz_solr:dist_search(list_to_binary(?RJ_INDEX(rj_util:any_to_list(Collection))), Query),
 
     lager:debug("Result: ~p~n", [Result]),
 
@@ -206,7 +206,7 @@ wait_for(Check={M,F,A}, Seconds) when Seconds > 0 ->
     end.
 
 bucket_type_from(Collection) ->
-    ?any_to_binary(?RJ_TYPE(?any_to_list(Collection))).
+    rj_util:any_to_binary(?RJ_TYPE(rj_util:any_to_list(Collection))).
 
 bucket_with_type_from(Collection) ->
-    {bucket_type_from(Collection), ?any_to_binary(Collection)}.
+    {bucket_type_from(Collection), rj_util:any_to_binary(Collection)}.

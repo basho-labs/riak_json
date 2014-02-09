@@ -1,7 +1,7 @@
 
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2014 Basho Technologies, Inc.
+%% Copyright (c) 2013 Basho Technologies, Inc.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -19,14 +19,21 @@
 %%
 %% -------------------------------------------------------------------
 
--define(RJ_INDEX_POSTFIX, "RJIndex").
+-module(rj_util).
 
--define(RJ_TYPE_POSTFIX, "RJType").
+-export([
+    any_to_binary/1,
+    any_to_list/1
+]).
 
--define(RJ_SCHEMA_POSTFIX, "DefaultSchema").
+any_to_binary(Str) ->
+    case is_binary(Str) of
+        true -> Str; 
+        _ -> list_to_binary(Str) 
+    end.
 
--define(RJ_INDEX(COL), rj_util:any_to_list(COL) ++ ?RJ_INDEX_POSTFIX).
-
--define(RJ_TYPE(COL), rj_util:any_to_list(COL) ++ ?RJ_TYPE_POSTFIX).
-
--define(RJ_SCHEMA(COL), rj_util:any_to_list(COL) ++ ?RJ_SCHEMA_POSTFIX).
+any_to_list(Str) ->
+    case is_binary(Str) of
+        true -> binary_to_list(Str);
+        _ -> Str
+    end.

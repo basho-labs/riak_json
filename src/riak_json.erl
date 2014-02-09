@@ -97,8 +97,9 @@ get_objects(BucketKeyList) ->
 get_collections() ->
     get_collections(<<>>).
 
+% Filter on collections like "prefix.collection"
 get_collections(AnyPrefix) ->
-    Prefix = ?any_to_binary(AnyPrefix),
+    Prefix = rj_util:any_to_binary(AnyPrefix),
     get_collections(Prefix, rj_yz:bucket_type_list(), []).
 
 get_collections(_, [], Cols) ->
@@ -115,22 +116,17 @@ get_collections(Prefix, [{Name, true, _}| R], Cols) ->
 
 %%% =================================================== internal functions
 
-% binary only
-is_rj_collection(Prefix, Name) ->
-    PreSize = byte_size(Prefix),
-    Postfix = ?any_to_binary(?RJ_TYPE_POSTFIX),
-    PostSize = byte_size(Postfix), 
-    NPSize = byte_size(Name) - PostSize,
-    case Prefix of
-        <<>> -> case Name of
-            <<_:NPSize/binary, Postfix:PostSize/binary>> -> true;
-            _ -> false
-        end;
-        _ -> case Name of
-            <<Prefix:PreSize/binary, $.:8,_:NPSize/binary, Postfix:PostSize/binary>> -> true;
-            _ -> false
-        end
-    end.
+is_rj_collection(P, N) when is_binary(P)->
+    is_rj_collection(rj_util:any_to_list(P), rj_util:any_to_list(N));
+is_rj_collection(P, N) -> 
+    PrefixMatch = case P of
+        [] -> true;
+        _ -> has_string(N,P)
+    end,
+    (has_string(N, ?RJ_TYPE_POSTFIX) and PrefixMatch).
+
+has_string(Haystack, Needle) ->
+    (string:str(Haystack, Needle) > 0).
 
 maybe_create_schema(Collection, JDocument, false) ->
     DefaultSchemaName = ?RJ_SCHEMA(Collection),
@@ -152,10 +148,8 @@ get_objects([{Bucket, Key}|Others], Acc) ->
 -ifdef(TEST).
 
 collections_test() ->
-    LName = ?RJ_TYPE("testing"),
-    Name = ?any_to_binary(LName),
-    PreName = << "mydb", $.:8, Name/binary >>,
-    ?debugFmt("prename: ~p~n", [PreName]),
+    Name = ?RJ_TYPE("testing"),
+    PreName = "mydb." ++ Name,
     ?assertEqual(true, is_rj_collection(<<>>, Name)),
     ?assertEqual(true, is_rj_collection(<<"mydb">>, PreName)),
     ?assertEqual(false, is_rj_collection(<<>>, <<"default">>)).
