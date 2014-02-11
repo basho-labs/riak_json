@@ -100,7 +100,8 @@ get_collections() ->
 % Filter on collections like "prefix.collection"
 get_collections(AnyPrefix) ->
     Prefix = rj_util:any_to_binary(AnyPrefix),
-    get_collections(Prefix, rj_yz:bucket_type_list(), []).
+    WithType = get_collections(Prefix, rj_yz:bucket_type_list(), []),
+    strip_type(WithType, []).
 
 get_collections(_, [], Cols) ->
     lists:reverse(Cols);
@@ -115,6 +116,12 @@ get_collections(Prefix, [{Name, true, _}| R], Cols) ->
     end.
 
 %%% =================================================== internal functions
+
+strip_type([], Colls) -> lists:reverse(Colls);
+strip_type([{name, Coll0} | R], Colls) ->
+    Coll1 = rj_util:any_to_list(Coll0),
+    Coll2 = string:substr(Coll1, 1, length(Coll1) - length(?RJ_TYPE_POSTFIX)),
+    strip_type(R, [{name, rj_util:any_to_binary(Coll2)} | Colls]).
 
 is_rj_collection(P, N) when is_binary(P)->
     is_rj_collection(rj_util:any_to_list(P), rj_util:any_to_list(N));
