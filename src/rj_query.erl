@@ -28,6 +28,9 @@
 -include_lib("eunit/include/eunit.hrl").
 -endif.
 
+from_json([], all) ->
+    from_json({struct, [{<<"*">>, <<"*">>}]}, all);
+
 from_json({struct, Doc}, QueryType) ->
     GroupCatKeys = get_keys_with_prefixes([<<"$group">>, 
                                             <<"$categorize">>], Doc, []),
