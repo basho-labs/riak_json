@@ -261,6 +261,15 @@ operator(<<"$between">>, P, [From, To]) ->
     prefix_prop(P, "[" ++ token_to_string(From) ++ " TO " ++ token_to_string(To) ++ "]");
 operator(<<"$regex">>, P, V) ->
     token_to_string(P) ++ ":" ++ token_to_string(V);
+% Mongo expects slashes and .*'s to be added
+operator(<<"regex">>, P, <<"^", V/binary>>) ->
+    token_to_string(P) ++ ":/" ++ token_to_string(V) ++ ".*/";
+operator(<<"regex">>, P, V0) ->
+    V = token_to_string(V0),
+    case string:right(V,1) of
+        "$" -> token_to_string(P) ++ ":/.*" ++ string:left(V, length(V)-1) ++ "/";
+        _ -> token_to_string(P) ++ ":/.*" ++ V ++ ".*/"
+    end;
 operator(<<"$exists">>, P, V) ->
     prefix_for_exists_op(V) ++ token_to_string(P) ++ ":[* TO *]".
 
