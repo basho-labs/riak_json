@@ -201,22 +201,36 @@ parse_categorize_stats_spec([Spec|CatStatSpecs], StatsSpec) ->
     end,
     parse_categorize_stats_spec(CatStatSpecs, [CatStatProp | StatsSpec]).
 
-
 visit_query_nodes({struct, []}, SolrNodes) ->
     SolrNodes;
 visit_query_nodes({struct, [{Op, NestedParams}|T]}, SolrNodes) when Op =:= <<"$and">> orelse Op =:= <<"$or">> ->
     [nested_from_json(Op, NestedParams) |
      visit_query_nodes({struct, T}, SolrNodes)];
-visit_query_nodes({struct, [{Prop, ValueTuple}|T]}, SolrNodes) when is_tuple(ValueTuple) ->
-    {struct, [{Op, Value}]} = ValueTuple,
-    [operator(Op, Prop, Value) |
+visit_query_nodes({struct, [{Prop, TupleOps}|T]}, SolrNodes) when is_tuple(TupleOps) ->
+    [visit_operators(Prop, TupleOps) |
      visit_query_nodes({struct, T}, SolrNodes)];
 visit_query_nodes({struct, [{Prop, Value}|T]}, SolrNodes) ->
     [token_to_string(Prop) ++ ":" ++ value_to_string(Value) |
      visit_query_nodes({struct, T}, SolrNodes)].
 
+visit_operators(Prop, {struct, Ops}=TupleOps) ->
+    Inner = lists:reverse(visit_operators(Prop, TupleOps, [])),
+    Outer = case length(Ops) > 1 of
+        true -> wrap_in_parentheses(Inner);
+        false -> Inner
+    end,
+    lists:flatten(Outer).
+visit_operators(_, {struct, []}, OpList) -> OpList;
+visit_operators(Prop, {struct, [{Op, Value}|Ops]}, OpList) ->
+    Conjunction = case Ops of
+        [] -> [];
+        _ -> " AND "
+    end,
+
+    visit_operators(Prop, {struct, Ops},
+        [operator(Op, Prop, Value) ++ Conjunction | OpList]).
+
 nested_from_json(Op, Doc) ->
-%    lager:info("nested_from_json:~n  Op: ~p~n  Doc: ~p~n", [Op, Doc]),
     Conjunction =
         case Op of
             <<"$and">> -> "AND";
@@ -487,7 +501,13 @@ lt_int_test() ->
     Expected = "foo:[* TO 41]",
     Actual = proplists:get_value("q", from_json(Input, all)),
     ?assertEqual(Expected, Actual).
-    
+
+gt_lte_int_test() ->
+    Input = mochijson2:decode("{\"foo\": {\"$gt\": 20, \"$lte\": 40}}"),
+    Expected = "(foo:[21 TO *] AND foo:[* TO 40])",
+    Actual = proplists:get_value("q", from_json(Input, all)),
+    ?assertEqual(Expected, Actual).
+
 ne_test() ->
     Input = mochijson2:decode("{\"foo\": {\"$ne\": 42}}"),
     Expected = "-foo:42",
