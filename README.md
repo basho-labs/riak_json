@@ -4,6 +4,24 @@ Riak Json is a JSON based document and query interface built on Riak and indexed
 
 ### Setup
 
+### Pre-Built Ubuntu Package
+If you have access to an Ubuntu 12.04 64-bit machine, with Oracle Java 7 installed on it,
+you can use a pre-built Riak+RiakJson package, based on Riak 2.0.0pre15 and RiakJson 0.0.1:
+
+```bash
+wget http://ps-tools.data.riakcs.net:8080/riak_2.0.0pre15-9d332123-riak_json_0.0.1_amd64.deb
+dpkg -i riak_2.0.0pre15-9d332123-riak_json_0.0.1_amd64.deb
+```
+
+If you're curious about where the various Riak components go, you can list the files installed by the package:
+
+```
+dpkg -L riak_2.0.0pre15-9d332123-riak_json_0.0.1_amd64.deb
+```
+
+(You still have to make sure Search/Yokozuna is enabled, by editing ```/etc/riak/riak.conf``` and ensuring that
+```search = on```)
+
 #### Download Riak Source
 See the [Installing Riak From Source](http://docs.basho.com/riak/2.0.0pre5/ops/building/installing/from-source/) 
 discussion for Riak pre-requisites, and the [Yokozuna Install Docs](https://github.com/basho/yokozuna/blob/develop/docs/INSTALL.md)
@@ -80,3 +98,9 @@ Please refer to [docs/architecture.md](https://github.com/basho-labs/riak_json/b
 ### Http API Reference
 
 Please refer to [docs/demo.md](https://github.com/basho-labs/riak_json/blob/master/docs/demo.md) and [docs/query.md](https://github.com/basho-labs/riak_json/blob/master/docs/query.md) for information about how tu use RiakJson and for examples of queries.
+
+### RiakJson Clients and Projects
+ - [riak_json_python_client](https://github.com/basho-labs/riak_json_python_client) - Python client
+ - [riak_json_ruby_client](https://github.com/basho-labs/riak_json_ruby_client) - Ruby client
+ - [riak_json_java_client](https://github.com/basho-labs/riak_json_java_client) - Java client
+ - [nrj](https://github.com/dmitrizagidulin/nrj) - Node.js client
