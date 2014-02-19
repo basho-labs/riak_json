@@ -2,10 +2,55 @@
 
 Riak Json is a JSON based document and query interface built on Riak and indexed by Solr
 
-### Setup
+### Installation
 
-### Pre-Built Ubuntu Package
-If you have access to an Ubuntu 12.04 64-bit machine, with Oracle Java 7 installed on it,
+#### From a Vagrant box
+If you're familiar with Vagrant, you can download a pre-built Ubuntu 12.04 LTS VM,
+which has Oracle Java 7u25 and RiakJson pre-installed and running.
+
+1. [Install VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+2. [Install Vagrant](https://docs.vagrantup.com/v2/installation/)
+3. Download the ```riak_json-0.0.1.box``` file (880 Mb), add it to your local boxes list, and initialize a Vagrant VM:
+
+    ```
+    wget http://ps-tools.data.riakcs.net:8080/riak_json-0.0.1.box
+    vagrant box add riak_json riak_json-0.0.1.box virtualbox
+    mkdir riak_json_vm
+    cd riak_json_vm
+    vagrant init riak_json
+    ```
+4. Now you can bring up the VM, ssh to it, and test out Riak and RiakJson
+
+    ```
+    vagrant up
+    vagrant ssh
+    riak ping
+    curl http://localhost:8098/ping
+    ```
+
+In addition, you may want to set up a pass-through port into the VM, so that you can make HTTP requests 
+to RiakJson from your development machine. (In Vagrant terminology, the riak_json VM is the guest, and your dev machine would be the host).
+
+Edit the ```Vagrantfile```, and add or uncomment the line:
+
+```ruby
+  config.vm.network :forwarded_port, guest: 8098, host: 10098
+```
+
+Inside the VM, change the Riak config file to listen to requests from the outside.
+Stop Riak first (```sudo riak stop```), then edit ```/etc/riak/riak.conf```, and change the http listener to:
+```
+listener.http.internal = 0.0.0.0:8098
+```
+Restart Riak (```sudo riak start```), exit the VM, and you should be able to make HTTP requests to Riak from the outside
+(accessing port 10098 gets routed to the VM's port 8098).
+```
+curl http://localhost:10098
+OK
+```
+
+#### From a Pre-Built Ubuntu Package
+If you have access to an Ubuntu 12.04 64-bit machine, with Oracle Java 7u25 installed on it,
 you can use a pre-built Riak+RiakJson package, based on Riak 2.0.0pre15 and RiakJson 0.0.1:
 
 ```bash
@@ -22,7 +67,7 @@ dpkg -L riak_2.0.0pre15-9d332123-riak_json_0.0.1_amd64.deb
 (You still have to make sure Search/Yokozuna is enabled, by editing ```/etc/riak/riak.conf``` and ensuring that
 ```search = on```)
 
-#### Download Riak Source
+#### From Source
 See the [Installing Riak From Source](http://docs.basho.com/riak/2.0.0pre5/ops/building/installing/from-source/) 
 discussion for Riak pre-requisites, and the [Yokozuna Install Docs](https://github.com/basho/yokozuna/blob/develop/docs/INSTALL.md)
 for Yokozuna/Search pre-requisites (specifically, the part about 'Java 1.6 or later, Oracle 7u25 is recommended')
