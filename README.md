@@ -1,6 +1,7 @@
 # RiakJson
 
-Riak Json is a JSON based document and query interface built on Riak and indexed by Solr
+Riak Json is a JSON based document and query interface built on Riak and indexed by Solr.
+See [docs/RELEASE_NOTES.md](https://github.com/basho-labs/riak_json/blob/master/docs/RELEASE_NOTES.md) for versions/feature log.
 
 ### Installation
 
