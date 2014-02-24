@@ -83,7 +83,7 @@ generate_user_fields([{_,Props}|Rest],{Fields, CopyFields}) ->
             {[{field, [{name, Name}, {type, solr_type(Type)}, {indexed, "true"}, {stored, "false"}],[]}],[]};
         "integer" ->
             {[{field, [{name, Name}, {type, solr_type(Type)}, {indexed, "true"}, {stored, "false"}],[]}],[]};
-        "geo" ->
+        "location" ->
             {[{field, [{name, Name}, {type, solr_type(Type)}, {indexed, "true"}, {stored, "false"}, {multiValued, "true"}],[]}],[]}
     end,
 
@@ -113,7 +113,7 @@ solr_type(Type) ->
         "multi_string" -> "string";
         "number" -> "tdouble";
         "integer" -> "int";
-        "geo" -> "location"
+        "location" -> "location"
     end.
 
 user_type("string", "true") -> "multi_string";
@@ -124,7 +124,7 @@ user_type(Type, _) ->
         "text_general" -> "text";
         "tdouble" -> "number";
         "int" -> "integer";
-        "location" -> "geo"
+        "location" -> "location"
     end.
 
 maybe_user_field(E) ->
