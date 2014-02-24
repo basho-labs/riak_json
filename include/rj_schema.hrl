@@ -26,7 +26,7 @@
 
 -ifdef(TEST).
 -define(DEFAULT_SCHEMA_XML, ?DEFAULT_SCHEMA_HEADER ++ ?DEFAULT_SCHEMA_MIDDLE ++ ?DEFAULT_SCHEMA_FOOTER).
--define(USER_TEST_FIELDS, "<field name=\"first_name\" type=\"string\" indexed=\"true\" stored=\"false\"/><field name=\"last_name\" type=\"text_general\" indexed=\"true\" stored=\"false\"/><field name=\"description\" type=\"string\" indexed=\"true\" stored=\"false\" multiValued=\"true\"/><field name=\"age\" type=\"tdouble\" indexed=\"true\" stored=\"false\"/><field name=\"location\" type=\"location\" indexed=\"true\" stored=\"false\" multiValued=\"true\"/>").
+-define(USER_TEST_FIELDS, "<field name=\"first_name\" type=\"string\" indexed=\"true\" stored=\"false\"/><field name=\"last_name\" type=\"text_general\" indexed=\"true\" stored=\"false\"/><field name=\"description\" type=\"string\" indexed=\"true\" stored=\"false\" multiValued=\"true\"/><field name=\"age\" type=\"tdouble\" indexed=\"true\" stored=\"false\"/><field name=\"coordinates\" type=\"location\" indexed=\"true\" stored=\"false\" multiValued=\"false\"/><field name=\"coordinates_rpt\" type=\"location_rpt\" indexed=\"true\" stored=\"false\" multiValued=\"true\"/>").
 -define(USER_TEST_MIDDLE, "<copyField source=\"first_name\" dest=\"text\"/><copyField source=\"last_name\" dest=\"text\"/><copyField source=\"description\" dest=\"text\"/>").
 -define(USER_TEST_SCHEMA_XML, ?DEFAULT_SCHEMA_HEADER ++ ?USER_TEST_FIELDS ++ ?DEFAULT_SCHEMA_MIDDLE ++ ?USER_TEST_MIDDLE ++ ?DEFAULT_SCHEMA_FOOTER).
 -define(USER_SCHEMA_JSON,
@@ -34,5 +34,6 @@
       {\"name\": \"last_name\", \"type\": \"text\"},
       {\"name\": \"description\", \"type\": \"multi_string\"},
       {\"name\": \"age\", \"type\": \"number\"},
-      {\"name\": \"location\", \"type\": \"geo\"}]").
+      {\"name\": \"coordinates\", \"type\": \"location\"},
+      {\"name\": \"coordinates_rpt\", \"type\": \"location_rpt\"}]").
 -endif.
