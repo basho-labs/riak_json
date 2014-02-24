@@ -52,7 +52,7 @@ OK
 
 #### From a Pre-Built Ubuntu Package
 If you have access to an Ubuntu 12.04 64-bit machine, with Oracle Java 7u25 installed on it,
-you can use a pre-built Riak+RiakJson package, based on Riak 2.0.0pre15 and RiakJson 0.0.1:
+you can use a pre-built Riak+RiakJson package:
 
 ```bash
 wget http://ps-tools.data.riakcs.net:8080/riak_2.0.0pre16-riak_json_0.0.2-1_amd64.deb
