@@ -1,5 +1,11 @@
 # RiakJson Release Notes
 
+## 0.0.3
+
+* [#29](https://github.com/basho-labs/riak_json/issues/29) Rename 'geo' type fields to 'location' to match Solr terminology
+* [#28](https://github.com/basho-labs/riak_json/issues/28) Implement 'location_rpt' geospatial field type.
+* Bump Yokozuna dep to version v0.14.0
+
 ## 0.0.2
 
 * [8d1008e773](https://github.com/basho-labs/riak_json/commit/8d1008e7730cce41d53b6f51e36b0e5b443e129c) Add support for filtering on collection names with prefixes
