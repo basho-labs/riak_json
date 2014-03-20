@@ -87,6 +87,8 @@ get_schema(SchemaName) ->
     Result = case yz_schema:get(S1) of
         {ok, RawSchema} ->
             binary_to_list(RawSchema);
+        {error, Reason} ->
+            {error, Reason};
         {error, _, Reason} ->
             {error, Reason}
     end,
@@ -157,7 +159,7 @@ create_index(Collection, SchemaName) ->
 
     yz_index:create(IndexName, rj_util:any_to_binary(SchemaName)),
 
-    wait_for({yz_solr, ping, [IndexName]}, 5),
+    wait_for({yz_solr, ping, [IndexName]}, 10),
 
     case riak_core_bucket_type:get(BucketType) of
         undefined ->
