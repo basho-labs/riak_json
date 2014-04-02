@@ -15,7 +15,7 @@ which has Oracle Java 7u25 and RiakJson pre-installed and running.
 
     ```
     wget http://ps-tools.data.riakcs.net:8080/riak_json-0.0.1.box
-    vagrant box add riak_json riak_json-0.0.1.box virtualbox
+    vagrant box add --name riak_json --provider virtualbox riak_json-0.0.1.box
     mkdir riak_json_vm
     cd riak_json_vm
     vagrant init riak_json
@@ -46,7 +46,7 @@ listener.http.internal = 0.0.0.0:8098
 Restart Riak (```sudo riak start```), exit the VM, and you should be able to make HTTP requests to Riak from the outside
 (accessing port 10098 gets routed to the VM's port 8098).
 ```
-curl http://localhost:10098
+curl http://localhost:10098/ping
 OK
 ```
 
