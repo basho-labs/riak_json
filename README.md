@@ -51,18 +51,23 @@ OK
 ```
 
 #### From a Pre-Built Ubuntu Package
-If you have access to an Ubuntu 12.04 64-bit machine, with Oracle Java 7u25 installed on it,
-you can use a pre-built Riak+RiakJson package:
+If you have access to an Ubuntu 12.04 LTS 64-bit machine, with Oracle Java 7u25 installed on it, you can use a pre-built Riak+RiakJson package:
 
 ```bash
-wget http://ps-tools.data.riakcs.net:8080/riak_2.0.0pre19-riak_json-0.0.3-1_amd64.deb
-dpkg -i riak_2.0.0pre19-riak_json-0.0.3-1_amd64.deb
+wget http://ps-tools.s3.amazonaws.com/riak_2.0.5-riak_json_0.0.4-aa73abc6-1_amd64.deb
+dpkg -i riak_2.0.5-riak_json_0.0.4-aa73abc6-1_amd64.deb
+```
+
+If you need to uninstall a previous version of riak, you can run the dpkg 'purge' command:
+
+```
+dpkg -P riak
 ```
 
 If you're curious about where the various Riak components go, you can list the files installed by the package:
 
 ```
-dpkg -L riak_2.0.0pre19-riak_json-0.0.3-1_amd64.deb
+dpkg -L riak_2.0.5-riak_json_0.0.4-aa73abc6-1_amd64.deb
 ```
 
 (You still have to make sure Search/Yokozuna is enabled, by editing ```/etc/riak/riak.conf``` and ensuring that
